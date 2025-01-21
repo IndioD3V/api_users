@@ -1,6 +1,6 @@
 from typing import List, Any, Iterator
 from .database import DataBase
-from libs.common import date_format_str, date_format_date
+from libs.common import date_format
 from sqlalchemy.exc import IntegrityError
 from libs.errors import UniqueViolationError
 from datetime import datetime
@@ -31,9 +31,10 @@ class Query(DataBase):
 
         return [
             {
-                column.name: date_format_str(
+                column.name: date_format(
                     getattr(obj, column.name),
-                    column.type
+                    column.type,
+                    'to_str'
                 )
                 for column in self.columns
             }
@@ -46,7 +47,7 @@ class Query(DataBase):
             data = data[0]
             
         new_customer_data = {
-            column.name: date_format_date(data.get(column.name), column.type)
+            column.name: date_format(data.get(column.name), column.type, 'to_date')
             for column in self.columns
             if column.name in data
         }
@@ -65,12 +66,13 @@ class Query(DataBase):
                 getattr(self.table, field) == key_value).update(new_customer_data)
             self.db.session.commit() 
             rows = {
-                column.name: date_format_str(
+                column.name: date_format(
                 getattr(
                     new_customer, 
-                    column.name
+                    column.name,
                     ),
-                column.type
+                column.type,
+                'to_str'
                 ) for column in self.columns
                 if column.name in data
             }
@@ -98,7 +100,7 @@ class Query(DataBase):
         self.db.session.begin()
         for row in data:
             each_row = {
-                column.name: date_format_date(row.get(column.name), column.type)
+                column.name: date_format(row.get(column.name), column.type, 'to_date')
                 for column in self.columns
                 if column.name in row
             }

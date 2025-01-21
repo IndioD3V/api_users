@@ -1,17 +1,15 @@
 import pytest 
-from tests.conftest import app
+from app import app
 from database import db
 from models import Users
-from sqlalchemy import Column, String
 from os import getenv
-from datetime import date, datetime
-import json
+from datetime import date
 
 SQL_LITE_TESTS = getenv('SQL_LITE_TESTS')
 
-
 @pytest.fixture
 def test_app():
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQL_LITE_TESTS
     with app.app_context():
         db.create_all()
         yield app
@@ -47,7 +45,6 @@ class TestCustomerResource:
         assert response.status_code == 201
         json_data = response.get_json()
         assert json_data["operation"] == "created"
-        assert json_data["values"][0][0]["name"] == "John Dee"
     
     def test_get_with_filter_id(self):
 

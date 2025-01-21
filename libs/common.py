@@ -1,19 +1,19 @@
-from datetime import date, datetime
+from datetime import datetime
 
-def date_format_date(value, type_value):
-
-    if str(type_value) == 'DATE':
-        return datetime.strptime(value, '%Y-%m-%d') 
-    elif str(type_value) == 'DATETIME':
-        return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-    else:
-        return value
+def date_format(value, type_value, to_value):
     
-def date_format_str(value, type_value):
-
-    if str(type_value) == 'DATE':
-        return datetime.strftime(value, '%Y-%m-%d') 
-    elif str(type_value) == 'DATETIME':
-        return datetime.strftime(value, '%Y-%m-%d %H:%M:%S') if value else value
+    op = {
+        'to_date' :datetime.strptime,
+        'to_str': datetime.strftime
+        
+    }.get(to_value)
+    
+    if value:
+        if str(type_value) == 'DATE':
+            return op(value, '%Y-%m-%d')  
+        elif str(type_value) == 'DATETIME':
+            return op(value, '%Y-%m-%d %H:%M:%S')
+        else:
+            return value
     else:
         return value
