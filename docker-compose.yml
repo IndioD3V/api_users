@@ -19,6 +19,3 @@ services:
 networks:
   app-network:
     external: true
-
-volumes:
-  postgres_data:

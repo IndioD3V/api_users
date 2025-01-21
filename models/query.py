@@ -15,10 +15,10 @@ class Query(DataBase):
     def get_values(
         self, 
         page, 
-        per_page, 
+        peer_page, 
         field, 
         key_value
-        ) -> Iterator[List[Any]]:
+        ) -> List[Any]:
         
         query = self.table.query
         
@@ -26,10 +26,10 @@ class Query(DataBase):
             query = query.filter(getattr(self.table, field) == key_value)
 
         self.total = query.count()
-        table_objs = query.offset((page - 1) * per_page).limit(per_page).all()
-        self.total_pages = (self.total + per_page - 1) // per_page
+        table_objs = query.offset((page - 1) * peer_page).limit(peer_page).all()
+        self.total_pages = (self.total + peer_page - 1) // peer_page
 
-        data = [
+        return [
             {
                 column.name: date_format_str(
                     getattr(obj, column.name),
@@ -39,9 +39,7 @@ class Query(DataBase):
             }
             for obj in table_objs
         ]
-        
-        for row in data:
-            yield row
+
     
     def update_values(self, data, field, key_value) -> Iterator[List[Any]]:
         if isinstance(data, list):
@@ -83,7 +81,6 @@ class Query(DataBase):
     def remove_values(self, field, key_value):
         self.db.session.begin()
         
-        
         try:   
             value = self.table.query.filter(getattr(self.table, field) == key_value).first()
             self.db.session.delete(value)        
@@ -94,9 +91,8 @@ class Query(DataBase):
             return False
         finally:
             self.db.session.close()
-
     
-    def insert_values(self, data) -> Iterator[List[Any]]:
+    def insert_values(self, data) -> List[Any]:
         output = []
         
         self.db.session.begin()
@@ -137,4 +133,4 @@ class Query(DataBase):
                     'data': row
                 })
 
-        yield output
+        return output
